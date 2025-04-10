@@ -6,7 +6,7 @@
 
 void createAccount();           // function declarations
 void login();
-bool usernameExists();
+
 
 void homePage() {               // landing page for the program, user can choose to login or signup, user MUST login to an account before continuing
     
@@ -35,108 +35,42 @@ void homePage() {               // landing page for the program, user can choose
     
 }
 
-bool usernameExists(const std::string& username) {         // check if username already exists in the text file
+class Account {             // class for handling account information
 
-    std::string existingUsername;
-    std::string existingPassword;
+private:
+    std::string username;
+    std::string password;
     
-    std::ifstream inFile("accounts.txt");
+    
 
-    if (inFile.is_open()) {
+public:
+    Account(const std::string& user, const std::string& pass)
+        : username(user), password(pass) {
+    }
+
+    std::string getUsername() const { return username; }
+    std::string getPassword() const { return password; }
+
+    void saveToFile() const {
+        std::ofstream outFile("accounts.txt", std::ios::app);               // save login information to text file
+        if (outFile.is_open()) {
+            outFile << username << " " << password << "\n";
+            outFile.close();
+        }
+    }
+
+    static bool usernameExists(const std::string& username) {               // check if username already exists 
+        std::ifstream inFile("accounts.txt");
+        std::string existingUsername, existingPassword;
         while (inFile >> existingUsername >> existingPassword) {
             if (existingUsername == username) {
                 inFile.close();
                 return true;
             }
         }
-        inFile.close();
-    }
-    return false;
-
-}
-
-void createAccount() {          // user can create a brand new account, creating login credentials that are saved to a text file
-    
-    std::string username;           
-    std::string password;           
-    std::string verifyPassword;
-    
-    std::cout << "=================================================\n";
-    std::cout << "      Please enter a username\n";
-    std::cout << "=================================================\n";
-
-    std::cin >> username;                                                   // user creates username
-
-    
-    while (usernameExists(username)) {                                      // check if username already exists
-        std::cout << "=================================================\n";
-        std::cout << "      Username already exists! Try another.\n";
-        std::cout << "=================================================\n";
-        std::cin >> username;
+        return false;
     }
 
-
-    std::cout << "=================================================\n";
-    std::cout << "      Please enter a password\n";
-    std::cout << "=================================================\n";
-
-    std::cin >> password;                                                   // user creates password
-
-    std::cout << "=================================================\n";
-    std::cout << "      Please confirm your password\n";
-    std::cout << "=================================================\n";
-
-    std::cin >> verifyPassword;                                             // user must confirm their password
-    if (password != verifyPassword) {
-        do {
-            std::cout << "=================================================\n";
-            std::cout << "      Incorrect password, please try again\n";
-            std::cout << "=================================================\n";
-            std::cin >> verifyPassword;
-        } while (password != verifyPassword);
-    }
-
-    
-    std::ofstream outFile("accounts.txt", std::ios::app);                   // open text file in append mode to allow adding multiple accounts
-
-    if (outFile.is_open()) {
-        outFile << username << " " << password << "\n";                     // save credentials
-        outFile.close();
-        std::cout << "=================================================\n";
-        std::cout << "      Account successfully created!\n";
-        std::cout << "=================================================\n";
-    }
-    else {
-        std::cout << "Error: Unable to open file for writing.\n";
-    }
-
-}
-void login() {                  // user can attempt to login to an existing account; if a matching account is found within the accounts text file, they are loggin in successfully
-
-    std::string usernameLog;
-    std::string passwordLog;
-
-    std::cout << "=================================================\n";
-    std::cout << "      Please enter your username\n";
-    std::cout << "=================================================\n";
-
-    std::cin >> usernameLog;                                                   // user enters existing username
-
-    std::cout << "=================================================\n";
-    std::cout << "      Please enter your password\n";
-    std::cout << "=================================================\n";
-
-    std::cin >> passwordLog;                                                   // user enters existing password
-
-}
-
-class AccountInfo {             // class for handling account information
-
-private:
-    std::string username;
-    std::string password;
-    double checkingsBalance;
-    double savingsBalance;
 
     void checkBalance() {       // user can view balances of their checkings and savings accounts
 
@@ -159,6 +93,78 @@ private:
     }
 
 };
+
+
+
+void createAccount() {          // user can create a brand new account, creating login credentials that are saved to a text file
+    
+    std::string username;           
+    std::string password;           
+    std::string verifyPassword;
+    
+    std::cout << "=================================================\n";
+    std::cout << "      Please enter a username\n";
+    std::cout << "=================================================\n";
+
+    std::cin >> username;                                                               // user creates username
+
+    
+    while (Account::usernameExists(username)) {                                         // prompt user to choose a different username if username already exists
+        std::cout << "=================================================\n";
+        std::cout << "      Username already exists! Try another.\n";
+        std::cout << "=================================================\n";
+        std::cin >> username;
+    }
+
+
+    std::cout << "=================================================\n";
+    std::cout << "      Please enter a password\n";
+    std::cout << "=================================================\n";
+
+    std::cin >> password;                                                               // user creates password
+
+    std::cout << "=================================================\n";
+    std::cout << "      Please confirm your password\n";
+    std::cout << "=================================================\n";
+
+    std::cin >> verifyPassword;                                                         // user must confirm their password
+    if (password != verifyPassword) {
+        do {
+            std::cout << "=================================================\n";
+            std::cout << "      Incorrect password, please try again\n";
+            std::cout << "=================================================\n";
+            std::cin >> verifyPassword;
+        } while (password != verifyPassword);
+    }
+
+    Account newAccount(username, password);
+    newAccount.saveToFile();
+    std::cout << "=================================================\n";
+    std::cout << "      Account successfully created!\n";
+    std::cout << "=================================================\n";
+    
+
+}
+void login() {                  // user can attempt to login to an existing account; if a matching account is found within the accounts text file, they are loggin in successfully
+
+    std::string usernameLog;
+    std::string passwordLog;
+
+    std::cout << "=================================================\n";
+    std::cout << "      Please enter your username\n";
+    std::cout << "=================================================\n";
+
+    std::cin >> usernameLog;                                                   // user enters existing username
+
+    std::cout << "=================================================\n";
+    std::cout << "      Please enter your password\n";
+    std::cout << "=================================================\n";
+
+    std::cin >> passwordLog;                                                   // user enters existing password
+
+}
+
+
 
 
 int main()
