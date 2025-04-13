@@ -137,7 +137,7 @@ void createAccount() {          // user can create a brand new account, creating
         } while (password != verifyPassword);
     }
 
-    Account newAccount(username, password);
+    Account newAccount(username, password);                                             // save login info to text file
     newAccount.saveToFile();
     std::cout << "=================================================\n";
     std::cout << "      Account successfully created!\n";
